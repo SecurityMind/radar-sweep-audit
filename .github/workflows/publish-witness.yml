@@ -1,0 +1,24 @@
+name: Publish anonymous seal witness
+on:
+  push:
+    branches: [main]
+    paths: ['requests/*.json']
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: radar-sweep-publication
+  cancel-in-progress: false
+jobs:
+  witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Verify and publish fixed issue witness
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish_witness.py
