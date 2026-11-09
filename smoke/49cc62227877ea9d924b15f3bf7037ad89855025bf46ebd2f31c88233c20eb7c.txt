@@ -1,0 +1,3 @@
+radar-sweep-seal-v1
+sha256:321f5dddca1a828ba5f27ffd4078b5d032a4f21d244a7b6f00d6f485650041b6
+{"campaign_id":"radar-sweep-badge-20261109-v1","chain_hash":"52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971","closes_at":"2026-11-09T09:54:51.404353+00:00","protocol":"radar-sweep-v1","round":33805110,"rules_sha256":"66442d2bbb78c82764ee343897fda5c7c57750f4072670c8ba702b601786d761","speed":{"published_at":null,"source_at":null,"status":"missing","tok_per_second":null},"speed_snapshot_sha256":"d80fd077fc6f5e506d9a6bfb74666a6bc01188bd6b7476281d746976e00ae8be","starts_at":"2026-11-04T09:54:51.404353+00:00","tickets":["R000000000001","R000000000002","R000000000003"],"tickets_sha256":"918c0216cdf3d99f0c5476b9f27fedfcba230c158e35118951221b5fffd23262"}
