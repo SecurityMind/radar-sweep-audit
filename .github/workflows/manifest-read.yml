@@ -1,0 +1,20 @@
+name: Check public manifest access
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - name: Compare official response to the archived manifest
+        run: |
+          PYTHONPATH=scripts python3 - <<'PY'
+          from pathlib import Path
+          from publish_witness import verify_public_manifest
+          seal = Path('seals/d8630c132cc01c540816333219acf28308712a5193e8202998617fa2fadf770e.txt').read_bytes()
+          verify_public_manifest(seal.split(b'\n', 2)[2])
+          PY

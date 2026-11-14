@@ -65,6 +65,25 @@ def api(path, *, body=None):
         if r.geturl()!=API+path:raise ValueError('github_redirect_forbidden')
         return json.load(r)
 
+def verify_public_manifest(expected):
+    # Use the public HTTPS endpoint without a session or GitHub credentials.
+    import tempfile
+    url = 'https://api.codexradar.com/api/v1/community/sweep/manifest'
+    with tempfile.TemporaryDirectory() as directory:
+        headers = Path(directory) / 'headers'
+        manifest = Path(directory) / 'manifest'
+        response = subprocess.check_output([
+            'curl', '--disable', '--silent', '--show-error', '--fail',
+            '--proto', '=https', '--max-time', '20', '--retry', '1',
+            '--max-filesize', '65000', '--header', 'Cache-Control: no-cache',
+            '--dump-header', str(headers), '--output', str(manifest),
+            '--write-out', '%{http_code}', url], text=True)
+        fields = headers.read_text().lower().splitlines()
+        if (response != '200' or not any(line.startswith('cache-control:') and
+                'no-store' in line.split(':', 1)[1].strip().split(',') for line in fields)
+                or manifest.read_bytes() != expected):
+            raise ValueError('official_public_manifest_mismatch')
+
 def publish(request_path):
     request=json.loads((ROOT/request_path).read_bytes())
     if set(request)!={'mode','body_sha256','body_file'} or request['mode']not in ('seal','smoke'):
@@ -78,10 +97,7 @@ def publish(request_path):
     m,text=validate_body(raw)
     issue=1 if request['mode']=='seal'else 2
     if issue==1:
-        url='https://api.codexradar.com/api/v1/community/sweep/manifest'
-        with urlopen(Request(url,headers={'Cache-Control':'no-cache'}),timeout=25)as r:
-            if r.geturl()!=url or 'no-store'not in r.headers.get('Cache-Control','') or r.read(65001)!=text.split('\n',2)[2].encode():
-                raise ValueError('official_public_manifest_mismatch')
+        verify_public_manifest(text.split('\n', 2)[2].encode())
     # Public unauthenticated search; never create a second timestamp for a retry.
     for page in range(1,101):
         items=api(f'/issues/{issue}/comments?per_page=100&page={page}')
